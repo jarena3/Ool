@@ -28,7 +28,7 @@ public class LevelSaver : EditorWindow
         levelNumber = EditorGUILayout.IntField("Level Number", levelNumber);
         if (GUILayout.Button("Save"))
         {
-            LevelFactory.SaveLevel(levelNumber);
+            StaticLevelFactory.SaveLevel(levelNumber);
             AssetDatabase.Refresh();
             Close();
         }
@@ -44,8 +44,7 @@ public class LevelLoader : EditorWindow
         levelNumber = EditorGUILayout.IntField("Level Number", levelNumber);
         if (GUILayout.Button("Save"))
         {
-            LevelFactory.LoadLevel(levelNumber);
-            AssetDatabase.Refresh();
+            StaticLevelFactory.LoadLevel(levelNumber);
             Close();
         }
     }

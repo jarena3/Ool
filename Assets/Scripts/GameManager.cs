@@ -4,21 +4,52 @@ public class GameManager : MonoBehaviour
 {
     public string PlayerName = "Some Goon";
 
-    public LevelOptions.MaterialOptions BallMaterialOption;
-    public int ScoreMultiplier;
+    public LevelOptions.MaterialOptions BallMaterialOption = LevelOptions.MaterialOptions.Normal;
+    public int ScoreMultiplier = 5;
     public Material BallMaterial;
     public PhysicMaterial BallPhysicMaterial;
     public Material[] MaterialSelections;
     public PhysicMaterial[] PhysicMaterialSelections;
-	
-    void NewGame()
-    {
+    public LevelFactory Factory;
 
+    private int currentLevel = 0;
+
+    void Awake()
+    {
+        DontDestroyOnLoad(this);
+    }
+
+    void Start()
+    {
+        SetBallMaterial();
+    }
+
+    public void NewGame()
+    {
+        Application.LoadLevel(1);
+        Invoke("LoadFirstLevel", 0.1f);
+    }
+
+    void LoadFirstLevel()
+    {
+        currentLevel++;
+        Factory.LoadLevel(1);
     }
 
     void NextLevel()
     {
+        ClearTable();
+        currentLevel++;
+        Factory.LoadLevel(currentLevel);
+    }
 
+    private void ClearTable()
+    {
+        var extantBalls = GameObject.FindGameObjectsWithTag("Ball");
+        foreach (var b in extantBalls)
+        {
+            Destroy(b);
+        }
     }
 
     void GameOver()

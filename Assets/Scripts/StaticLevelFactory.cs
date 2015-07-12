@@ -1,30 +1,24 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
-using UnityEditor;
 using UnityEngine;
 
-public class LevelFactory : MonoBehaviour
+public static class StaticLevelFactory
 {
 
-    public string datapath;
+    public static string datapath = Application.dataPath + "/Levels/";
 
-    void Awake()
-    {
-        datapath = Application.dataPath + "/Levels/";
-    }
-
-    public void LoadLevel(int levelNumber)
+    public static void LoadLevel(int levelNumber)
     {
         Debug.Log("loading");
         var formatter = new BinaryFormatter();
         FileStream stream = File.OpenRead(datapath + levelNumber + ".lvl");
-        var ballList = (BallInfo[]) formatter.Deserialize(stream);
+        var ballList = (BallInfo[])formatter.Deserialize(stream);
         stream.Close();
 
         foreach (var ball in ballList)
         {
-            var bf = FindObjectOfType<BallFactory>();
+            var bf = GameObject.FindObjectOfType<BallFactory>();
             Debug.Log("!!!");
             if (bf != null)
             {
@@ -33,7 +27,7 @@ public class LevelFactory : MonoBehaviour
         }
     }
 
-    public void SaveLevel(int levelNumber)
+    public static void SaveLevel(int levelNumber)
     {
         var objs = GameObject.FindGameObjectsWithTag("Ball");
 
@@ -41,7 +35,7 @@ public class LevelFactory : MonoBehaviour
 
         FileStream stream = File.Create(datapath + levelNumber + ".lvl");
         var formatter = new BinaryFormatter();
-        formatter.Serialize(stream, balls );
+        formatter.Serialize(stream, balls);
         stream.Close();
 
     }

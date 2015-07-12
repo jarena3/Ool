@@ -4,33 +4,26 @@ using System.Collections;
 
 public class ViewRotator : MonoBehaviour
 {
-    private float rotateTargetY;
+    private Quaternion rotateTarget;
 
     void Start()
     {
-        rotateTargetY = transform.rotation.y;
+        rotateTarget = transform.rotation;
     }
 
     public void RotateRight()
     {
-        rotateTargetY = transform.localRotation.eulerAngles.y + 90;
-
-        Debug.Log(rotateTargetY);
+        rotateTarget *= Quaternion.Euler(0, -90, 0);
     }
 
     public void RotateLeft()
     {
-        rotateTargetY = transform.localRotation.eulerAngles.y - 90;
-
-        Debug.Log(rotateTargetY);
+        rotateTarget *= Quaternion.Euler(0, 90, 0);
     }
 
     void FixedUpdate()
     {
-        if (Math.Abs(transform.localRotation.eulerAngles.y - rotateTargetY) > 0.1)
-        {
-            transform.Rotate(Vector3.up, rotateTargetY*Time.deltaTime);
-        }
+        transform.rotation = Quaternion.Slerp(transform.rotation, rotateTarget, Time.deltaTime * 5);
     }
 
 }
