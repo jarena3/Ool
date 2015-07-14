@@ -1,10 +1,17 @@
 ﻿using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class Ball : MonoBehaviour
 {
     public bool IsBogus;
 
     private Rigidbody rb;
+    private GameManager Manager;
+
+    public BallInfo BallInfo()
+    {
+        return new BallInfo { isBogus = IsBogus, positionX = transform.position.x, positionY = transform.position.y, positionZ = transform.position.z };
+    }
 
     public void Init(bool bogosity, Texture texture)
     {
@@ -19,8 +26,8 @@ public class Ball : MonoBehaviour
     public void Start()
     {
         rb = GetComponent<Rigidbody>();
-//        var manager = FindObjectOfType<GameManager>();
-//        SetRigidbodyParameters(manager.BallMaterialOption);
+        Manager = FindObjectOfType<GameManager>();
+        SetRigidbodyParameters(Manager.BallMaterialOption);
     }
 
     private void SetRigidbodyParameters(LevelOptions.MaterialOptions ballMaterialOption)
@@ -54,8 +61,29 @@ public class Ball : MonoBehaviour
         }
     }
 
-    public BallInfo BallInfo()
+    void OnCollisionEnter(Collision col)
     {
-        return new BallInfo {isBogus = IsBogus, positionX = transform.position.x, positionY = transform.position.y, positionZ = transform.position.z};
+        if (col.gameObject.name == "PocketDetector")
+        {
+            Sunk();
+        }
+        else if (col.gameObject.name == "OOBDetector")
+        {
+            Foul();
+        }
+    }
+
+    private void Sunk()
+    {
+        Manager.Score += 100*Manager.ScoreMultiplier;
+        Manager.CheckLevelOver();
+        Destroy(gameObject);
+    }
+
+    private void Foul()
+    {
+        Manager.Score -= 1000;
+        Manager.CheckLevelOver();
+        Destroy(gameObject);
     }
 }

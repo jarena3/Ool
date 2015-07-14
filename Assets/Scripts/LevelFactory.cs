@@ -25,7 +25,6 @@ public class LevelFactory : MonoBehaviour
         foreach (var ball in ballList)
         {
             var bf = FindObjectOfType<BallFactory>();
-            Debug.Log("!!!");
             if (bf != null)
             {
                 bf.Instantiate(ball);

@@ -54,8 +54,6 @@ public class MainMenuManager : MonoBehaviour
 
     public void SetMaterial(LevelOptions.MaterialOptions material)
     {
-        Debug.Log(material);
-        Debug.Log((int) material);
         var m = (int) material;
         MultiplierText.text = "x" + m;
         Manager.BallMaterialOption = material;
