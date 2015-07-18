@@ -24,9 +24,11 @@ public class InputManager : MonoBehaviour
     private bool IsTableLifting;
 
     public GameObject Brick;
+    public GameObject Cue;
 
     public Text TimeElapsedText;
     public Text TotalScoreText;
+
 
     void Start()
     {
@@ -37,26 +39,26 @@ public class InputManager : MonoBehaviour
     {
         var toggleON = Toggle.ActiveToggles().First().gameObject.name;
 
+
         switch (toggleON)
         {
             case ("Lift Button"):
                 LiftMode();
                 break;
-            case ("Punch Button"):
-                PunchMode();
+            case ("Gun Button"):
+                GunMode();
                 break;
             case ("Brick Button"):
                 BrickMode();
                 break;
         }
 
-        TimeElapsedText.text = Manager.GameStopwatch.Elapsed.ToString();
+//        TimeElapsedText.text = string.Format("{0}:{1}:{2}", Manager.GameStopwatch.Elapsed.Minutes, Manager.GameStopwatch.Elapsed.Seconds, Manager.GameStopwatch.Elapsed.Milliseconds);
         TotalScoreText.text = Manager.Score.ToString();
     }
 
     private void BrickMode()
     {
-        DisableIndicators();
         var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         RaycastHit hitInfo;
@@ -80,103 +82,62 @@ public class InputManager : MonoBehaviour
         }
     }
 
-    private void PunchMode()
+    private void GunMode()
     {
-        DisableIndicators();
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hitInfo;
+        {
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        if (Physics.Raycast(ray, out hitInfo) && hitInfo.transform.gameObject.name == "Frame")
-        {
-            RayPoint.SetActive(true);
-            RayPoint.transform.position = hitInfo.point;
-        }
-        else
-        {
-            RayPoint.SetActive(false);
-        }
+            RaycastHit hitInfo;
 
-        if (Input.GetMouseButton(0) && RayPoint.activeSelf)
-        {
-            RayPoint.transform.localScale = Vector3.Lerp(RayPoint.transform.localScale, new Vector3(5, 5, 5),
-                Time.deltaTime);
-        }
-
-        if (Input.GetMouseButtonUp(0) && RayPoint.activeSelf)
-        {
-            var balls = GameObject.FindGameObjectsWithTag("Ball");
-            var hitangle = (hitInfo.point - new Vector3(0, 0, 10)).normalized;
-            foreach (var ball in balls)
+            if (Physics.Raycast(ray, out hitInfo))
             {
-                ball.GetComponent<Rigidbody>().AddForce(-hitangle * RayPoint.transform.localScale.x * 250);
+                RayPoint.SetActive(true);
+                RayPoint.transform.position = hitInfo.point;
             }
-            Chalk.GetComponent<Rigidbody>().AddForce(-hitInfo.normal * RayPoint.transform.localScale.x * 100);
-            ScreenShaker.Shake(RayPoint.transform.localScale.x/40, 0.08f);
-            RayPoint.transform.localScale = Vector3.one;
+            else
+            {
+                RayPoint.SetActive(false);
+            }
+
+            if (Input.GetMouseButtonUp(0) && RayPoint.activeSelf)
+            {
+                var cue = (GameObject)PrefabUtility.InstantiatePrefab(Cue);
+                cue.transform.position = ray.origin;
+                cue.transform.parent = TablePivot;
+                var rb = cue.GetComponent<Rigidbody>();
+                rb.AddRelativeTorque(Random.onUnitSphere * 1);
+                rb.AddForce(ray.direction * 150, ForceMode.Impulse);
+                ScreenShaker.Shake(0.4f, 0.2f);
+            }
         }
     }
 
     void LiftMode()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hitInfo;
-
-        if (Physics.Raycast(ray, out hitInfo) && !IsTableLifting)
-        {
-            var indicatorDistances = from element in Indicators
-                                     orderby Vector3.Distance(hitInfo.point, element.transform.position)
-                                     select element;
-
-            DisableIndicators();
-
-            var cInd = indicatorDistances.First();
-            cInd.SetActive(true);
-            CurrentIndicator = cInd;
-        }
-        if (Input.GetMouseButton(0) && CurrentIndicator != null)
+        if (Input.GetMouseButton(0))
         {
             IsTableLifting = true;
-            var move = Input.GetAxis("Mouse Y")/2;
-            switch (CurrentIndicator.name)
-            {
-                case("Front"):
-                    TablePivot.Rotate(Vector3.right, move);
-                    break;
-                case("Back"):
-                    TablePivot.Rotate(Vector3.left, move);
-                    break;
-                case ("Right"):
-                    TablePivot.Rotate(Vector3.forward, move);
-                    break;
-                case ("Left"):
-                    TablePivot.Rotate(Vector3.back, move);
-                    break;
-            }
-            TablePivot.Translate(0,move/5,0);
+            TablePivot.Rotate(Vector3.back, Input.GetAxis("Mouse X"));
+            TablePivot.Rotate(Vector3.right, Input.GetAxis("Mouse Y"));
         }
 
-        if (Input.GetMouseButtonUp(0) && IsTableLifting)
+        else if (Input.GetMouseButtonUp(0) && IsTableLifting)
         {
             StartCoroutine(DropTable());
             IsTableLifting = false;
         }
+
     }
 
     IEnumerator DropTable()
     {
         while (TablePivot.rotation != Quaternion.identity)
         {
-            TablePivot.rotation = Quaternion.Slerp(TablePivot.rotation, Quaternion.identity, Time.deltaTime * 5);
-            TablePivot.position = Vector3.Slerp(TablePivot.position, Vector3.zero, Time.deltaTime*20);
+            TablePivot.rotation = Quaternion.Lerp(TablePivot.rotation, Quaternion.identity, Time.deltaTime * 20);
+            TablePivot.position = Vector3.Lerp(TablePivot.position, Vector3.zero, Time.deltaTime * 20);
             yield return new WaitForFixedUpdate();
         }
+ //       ScreenShaker.Shake(1, 0.1f);
     }
 
-    void DisableIndicators()
-    {
-        foreach (var indicator in Indicators)
-        {
-            indicator.SetActive(false);
-        }
-    }
 }

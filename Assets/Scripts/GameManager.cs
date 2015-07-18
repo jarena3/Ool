@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 public class GameManager : MonoBehaviour
 {
@@ -36,6 +37,8 @@ public class GameManager : MonoBehaviour
 
     private int currentLevel = 0;
 
+    public int activeBallNumber;
+
     void Awake()
     {
         DontDestroyOnLoad(this);
@@ -58,7 +61,9 @@ public class GameManager : MonoBehaviour
     void LoadFirstLevel()
     {
         currentLevel++;
+        activeBallNumber = 1;
         GameStopwatch.Start();
+        GetComponent<BallFactory>().TablePivot = GameObject.Find("TablePivot").transform;
         Factory.LoadLevel(1);
     }
 
@@ -67,8 +72,11 @@ public class GameManager : MonoBehaviour
         RecordScore();
         ClearTable();
         currentLevel++;
+        activeBallNumber = 1;
         Factory.LoadLevel(currentLevel);
     }
+
+
 
     private void RecordScore()
     {
@@ -131,11 +139,7 @@ public class GameManager : MonoBehaviour
 
     public void CheckLevelOver()
     {
-        var balls = FindObjectsOfType<Ball>().Select(s => s.IsBogus = false).ToArray();
-
         var endOfGame = currentLevel == TotalChallengeLevelCount;
-
-        if (balls.Length > 1) return;
 
         if (endOfGame)
         {
@@ -148,4 +152,22 @@ public class GameManager : MonoBehaviour
     }
 
 
+    public void ActivateNextBall()
+    {
+        activeBallNumber ++;
+
+        var balls = FindObjectsOfType<Ball>().Where(s => s.IsBogus == false).ToList();
+
+        var ordered = balls.OrderBy(s => s.ballNumber);
+
+        if (ordered.FirstOrDefault() != null)
+        {
+            ordered.First().SetBallAsTarget();
+        }
+        else
+        {
+            CheckLevelOver();
+        }
+ 
+    }
 }

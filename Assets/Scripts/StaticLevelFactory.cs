@@ -16,13 +16,13 @@ public static class StaticLevelFactory
         var ballList = (BallInfo[])formatter.Deserialize(stream);
         stream.Close();
 
-        foreach (var ball in ballList)
+        for (int i = 0; i < ballList.Length; i++)
         {
+            var ball = ballList[i];
             var bf = GameObject.FindObjectOfType<BallFactory>();
-            Debug.Log("!!!");
             if (bf != null)
             {
-                bf.Instantiate(ball);
+                bf.Instantiate(ball,i+1);
             }
         }
     }

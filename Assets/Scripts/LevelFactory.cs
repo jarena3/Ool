@@ -22,12 +22,22 @@ public class LevelFactory : MonoBehaviour
         var ballList = (BallInfo[]) formatter.Deserialize(stream);
         stream.Close();
 
+        var bf = FindObjectOfType<BallFactory>();
+        var bfIterator = 1;
+
         foreach (var ball in ballList)
         {
-            var bf = FindObjectOfType<BallFactory>();
             if (bf != null)
             {
-                bf.Instantiate(ball);
+                if (ball.isBogus)
+                {
+                    bf.Instantiate(ball, -1);
+                }
+                else
+                {
+                    bf.Instantiate(ball, bfIterator);
+                    bfIterator++;
+                }
             }
         }
     }
