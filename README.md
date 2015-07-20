@@ -2,11 +2,12 @@
 
 
 #TODO:
-- correct ball/bogus/cue detection on and off-table
 - normal ball textures
 	-- load into manager, pull based on active number
-- score modification effect
-- level interstitials
+	-- textures slot into Detail Albedo on shader
+- level interstitial fade
+- lifting controls rotate with camera view
+- Game Over screen formatting
 - levels v 1.0
 - implement crawlers
 - levels v 2.0

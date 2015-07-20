@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
     {
         public int LevelNumber;
         public int Score;
+        public int Faults;
         public TimeSpan Time;
     }
 
@@ -35,7 +36,9 @@ public class GameManager : MonoBehaviour
     public PhysicMaterial[] PhysicMaterialSelections;
     public LevelFactory Factory;
 
-    private int currentLevel = 0;
+    public int currentLevel = 0;
+
+    public int CurrentFaults = 0;
 
     public int activeBallNumber;
 
@@ -67,7 +70,7 @@ public class GameManager : MonoBehaviour
         Factory.LoadLevel(1);
     }
 
-    void NextLevel()
+    public void NextLevel()
     {
         RecordScore();
         ClearTable();
@@ -76,31 +79,31 @@ public class GameManager : MonoBehaviour
         Factory.LoadLevel(currentLevel);
     }
 
-
-
     private void RecordScore()
     {
         Scores.Add(new LevelScore
         {
             LevelNumber = currentLevel,
             Score = Score - cachedScore,
+            Faults = CurrentFaults,
             Time = GameStopwatch.Elapsed - cachedTime
         });
 
         cachedScore = Score;
         cachedTime = GameStopwatch.Elapsed;
+        CurrentFaults = 0;
     }
 
     private void ClearTable()
     {
-        var extant = GameObject.FindGameObjectsWithTag("Ball").Concat(GameObject.FindGameObjectsWithTag("Brick"));
+        var extant = GameObject.FindGameObjectsWithTag("Ball").Concat(GameObject.FindGameObjectsWithTag("Cue"));
         foreach (var go in extant)
         {
             Destroy(go);
         }
     }
 
-    void GameOver()
+    public void GameOver()
     {
         RecordScore();
         GameStopwatch.Stop();
@@ -110,6 +113,7 @@ public class GameManager : MonoBehaviour
     public void ResetGame()
     {
         Score = 0;
+        CurrentFaults = 0;
         currentLevel = 1;
         Scores = new List<LevelScore>();
     }
@@ -143,11 +147,11 @@ public class GameManager : MonoBehaviour
 
         if (endOfGame)
         {
-            GameOver();
+            FindObjectOfType<GameworldUIManager>().DoGameOverInterstitial();
         }
         else
         {
-            NextLevel();
+            FindObjectOfType<GameworldUIManager>().DoLevelInterstitial();
         }
     }
 

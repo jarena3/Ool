@@ -17,6 +17,8 @@ public class Ball : MonoBehaviour
     public GameObject canvasPrefab;
     public GameObject canvas;
 
+    public GameworldUIManager gwui;
+
     public BallInfo BallInfo()
     {
         return new BallInfo { isBogus = IsBogus, positionX = transform.position.x, positionY = transform.position.y, positionZ = transform.position.z };
@@ -33,6 +35,7 @@ public class Ball : MonoBehaviour
     public void Start()
     {
         rb = GetComponent<Rigidbody>();
+        gwui = FindObjectOfType<GameworldUIManager>();
         Manager = FindObjectOfType<GameManager>();
         SetRigidbodyParameters(Manager.BallMaterialOption);
         canvas.GetComponentInChildren<Text>().text = ballNumber.ToString();
@@ -73,32 +76,40 @@ public class Ball : MonoBehaviour
 
     void OnCollisionEnter(Collision col)
     {
-        if (col.gameObject.name == "PocketDetector")
+        if (col.gameObject.tag == "Pocket")
         {
-            if (ballNumber == Manager.activeBallNumber)
+            if (IsBogus)
             {
-                Sunk();
+                Foul("Bogus ball pocketed!", -1000);
             }
-            else
+            
+            if (ballNumber == Manager.activeBallNumber &&!IsBogus)
             {
-                Foul();
+                Sunk(col.gameObject.name);
+            }
+            else if (!IsBogus)
+            {
+                Foul("Out of turn!", -500);
             }
         }
-        else if (col.gameObject.name == "OOBDetector")
+        else if (col.gameObject.tag == "OOB" && !IsBogus)
         {
-            Foul();
+            Foul("Out of bounds!", -500);
         }
     }
 
-    private void Sunk()
+    private void Sunk(string pocketName)
     {
         Manager.Score += 100*Manager.ScoreMultiplier;
+        gwui.SunkBall(string.Format("{0} Ball, {1} : {2} points", ballNumber, pocketName, 100*Manager.ScoreMultiplier));
         Destroy(gameObject);
     }
 
-    private void Foul()
+    private void Foul(string reason, int penalty)
     {
-        Manager.Score -= 1000;
+        Manager.Score += penalty;
+        Manager.CurrentFaults ++;
+        gwui.FoulBall(string.Format("Foul: {0} : {1} point penalty", reason, penalty));
         Destroy(gameObject);
     }
 
@@ -117,6 +128,7 @@ public class Ball : MonoBehaviour
     void Update()
     {
         canvas.transform.position = transform.position + Vector3.up;
+        canvas.transform.LookAt(Camera.main.transform);
         canvas.SetActive(BallIsTarget);
     }
 

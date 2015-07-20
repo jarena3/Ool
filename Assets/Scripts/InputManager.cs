@@ -48,38 +48,10 @@ public class InputManager : MonoBehaviour
             case ("Gun Button"):
                 GunMode();
                 break;
-            case ("Brick Button"):
-                BrickMode();
-                break;
         }
 
-//        TimeElapsedText.text = string.Format("{0}:{1}:{2}", Manager.GameStopwatch.Elapsed.Minutes, Manager.GameStopwatch.Elapsed.Seconds, Manager.GameStopwatch.Elapsed.Milliseconds);
+        TimeElapsedText.text = string.Format("{0}:{1}:{2}", Manager.GameStopwatch.Elapsed.Minutes, Manager.GameStopwatch.Elapsed.Seconds, Manager.GameStopwatch.Elapsed.Milliseconds);
         TotalScoreText.text = Manager.Score.ToString();
-    }
-
-    private void BrickMode()
-    {
-        var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-        RaycastHit hitInfo;
-
-        if (Physics.Raycast(ray, out hitInfo))
-        {
-            RayPoint.SetActive(true);
-            RayPoint.transform.position = hitInfo.point;
-        }
-        else
-        {
-            RayPoint.SetActive(false);
-        }
-
-        if (Input.GetMouseButtonUp(0) && RayPoint.activeSelf)
-        {
-            var brick = (GameObject)PrefabUtility.InstantiatePrefab(Brick);
-            brick.transform.position = RayPoint.transform.position + new Vector3(0, 10, 0);
-            brick.transform.parent = TablePivot;
-            brick.GetComponent<Rigidbody>().AddRelativeTorque(Random.onUnitSphere * 10);
-        }
     }
 
     private void GunMode()
@@ -89,7 +61,7 @@ public class InputManager : MonoBehaviour
 
             RaycastHit hitInfo;
 
-            if (Physics.Raycast(ray, out hitInfo))
+            if (Physics.Raycast(ray, out hitInfo) && hitInfo.transform.tag != "rayblock")
             {
                 RayPoint.SetActive(true);
                 RayPoint.transform.position = hitInfo.point;
@@ -121,12 +93,17 @@ public class InputManager : MonoBehaviour
             TablePivot.Rotate(Vector3.right, Input.GetAxis("Mouse Y"));
         }
 
-        else if (Input.GetMouseButtonUp(0) && IsTableLifting)
+        else
         {
             StartCoroutine(DropTable());
             IsTableLifting = false;
         }
 
+    }
+
+    public void ResetTable()
+    {
+        StartCoroutine(DropTable());
     }
 
     IEnumerator DropTable()
