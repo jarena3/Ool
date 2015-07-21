@@ -20,7 +20,7 @@ public class CrawlerBehaviour : MonoBehaviour
 
     public GameObject ball;
 
-    public Light light;
+    public Light PointLight;
 
     private Transform ffTransform;
 
@@ -70,7 +70,7 @@ public class CrawlerBehaviour : MonoBehaviour
     private void Explode()
     {
         Destroy(ffTransform.gameObject);
-        Destroy(light.gameObject);
+        Destroy(PointLight.gameObject);
 
         foreach (var t in transform.GetComponentsInChildren<Transform>())
         {

@@ -13,17 +13,10 @@ public class InputManager : MonoBehaviour
 
     public ToggleGroup Toggle;
     
-    public GameObject CurrentIndicator;
-
-    public List<GameObject> Indicators;
     public GameObject RayPoint;
-    public GameObject Chalk;
 
     public Transform TablePivot;
 
-    private bool IsTableLifting;
-
-    public GameObject Brick;
     public GameObject Cue;
 
     public Text TimeElapsedText;
@@ -88,15 +81,14 @@ public class InputManager : MonoBehaviour
     {
         if (Input.GetMouseButton(0))
         {
-            IsTableLifting = true;
-            TablePivot.Rotate(Vector3.back, Input.GetAxis("Mouse X"));
-            TablePivot.Rotate(Vector3.right, Input.GetAxis("Mouse Y"));
+            var camtrans = Camera.main.transform;
+            TablePivot.Rotate(-camtrans.forward, Input.GetAxis("Mouse X"));
+            TablePivot.Rotate(camtrans.right, Input.GetAxis("Mouse Y"));
         }
 
         else
         {
             StartCoroutine(DropTable());
-            IsTableLifting = false;
         }
 
     }

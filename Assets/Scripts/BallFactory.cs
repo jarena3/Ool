@@ -7,6 +7,8 @@ public class BallFactory : MonoBehaviour
     public Material BogusMaterial;
     public GameObject BallPrefab;
     public Transform TablePivot;
+
+    public Texture[] BallNumberTextures;
 	
     public void Instantiate(BallInfo ballInfo, int ballnumber)
     {
@@ -26,13 +28,23 @@ public class BallFactory : MonoBehaviour
         else
         {
             b.SetNumber(ballnumber);
+            ball.GetComponent<MeshRenderer>().material = Manager.BallMaterial;
+
+            var textureNumber = ballnumber;
+            while (textureNumber > 15) textureNumber -= 15;
+
+            var renderer = ball.GetComponent<Renderer>();
+            var mat = renderer.material;
+            mat.EnableKeyword("_DETAIL_MULX2");
+            mat.SetTexture("_DetailAlbedoMap", BallNumberTextures[textureNumber - 1]);
+
+            renderer.material = mat;
 
             if (b.ballNumber == 1)
             {
                 b.SetBallAsTarget();
             }
 
-            ball.GetComponent<MeshRenderer>().material = Manager.BallMaterial;
         }
     }
 

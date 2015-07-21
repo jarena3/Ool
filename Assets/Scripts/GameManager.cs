@@ -42,6 +42,8 @@ public class GameManager : MonoBehaviour
 
     public int activeBallNumber;
 
+    private ScreenFader screenFader;
+
     void Awake()
     {
         DontDestroyOnLoad(this);
@@ -52,16 +54,17 @@ public class GameManager : MonoBehaviour
         SetBallMaterial();
         cachedTime = new TimeSpan(0);
         Scores = new List<LevelScore>();
+        screenFader = FindObjectOfType<ScreenFader>();
     }
 
     public void NewGame()
     {
         GameStopwatch = new Stopwatch();
-        Application.LoadLevel(1);
-        Invoke("LoadFirstLevel", 0.1f);
+        screenFader.EndSceneCaller("Game");
+        Invoke("LoadFirstLevel", 1f);
     }
 
-    void LoadFirstLevel()
+    public void LoadFirstLevel()
     {
         currentLevel++;
         activeBallNumber = 1;
@@ -94,7 +97,7 @@ public class GameManager : MonoBehaviour
         CurrentFaults = 0;
     }
 
-    private void ClearTable()
+    public void ClearTable()
     {
         var extant = GameObject.FindGameObjectsWithTag("Ball").Concat(GameObject.FindGameObjectsWithTag("Cue"));
         foreach (var go in extant)
@@ -107,7 +110,7 @@ public class GameManager : MonoBehaviour
     {
         RecordScore();
         GameStopwatch.Stop();
-        Application.LoadLevel("GameOver");
+        screenFader.EndSceneCaller("GameOver");
     }
 
     public void ResetGame()
@@ -139,6 +142,7 @@ public class GameManager : MonoBehaviour
 
         BallMaterial = MaterialSelections[n];
         BallPhysicMaterial = PhysicMaterialSelections[n];
+
     }
 
     public void CheckLevelOver()

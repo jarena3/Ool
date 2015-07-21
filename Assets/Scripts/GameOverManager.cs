@@ -46,6 +46,6 @@ public class GameOverManager : MonoBehaviour
     public void ReturnToMainMenu()
     {
         Manager.ResetGame();
-        Application.LoadLevel(0);
+        FindObjectOfType<ScreenFader>().EndSceneCaller("Menu");
     }
 }

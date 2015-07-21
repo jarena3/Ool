@@ -45,6 +45,7 @@ public class GameworldUIManager : MonoBehaviour
     {
         InManager.ResetTable();
         Manager.GameStopwatch.Stop();
+        Manager.ClearTable();
         CameraBlur.enabled = true;
         LevelOverGameObject.SetActive(true);
         ChangeGratsText();
