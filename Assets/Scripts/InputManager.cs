@@ -23,6 +23,8 @@ public class InputManager : MonoBehaviour
     public Text TotalScoreText;
 
 
+    private bool firingLock;
+
     void Start()
     {
         Manager = FindObjectOfType<GameManager>();
@@ -64,7 +66,7 @@ public class InputManager : MonoBehaviour
                 RayPoint.SetActive(false);
             }
 
-            if (Input.GetMouseButtonUp(0) && RayPoint.activeSelf)
+            if (Input.GetMouseButtonUp(0) && RayPoint.activeSelf && !firingLock)
             {
                 var cue = (GameObject)PrefabUtility.InstantiatePrefab(Cue);
                 cue.transform.position = ray.origin;
@@ -73,8 +75,15 @@ public class InputManager : MonoBehaviour
                 rb.AddRelativeTorque(Random.onUnitSphere * 1);
                 rb.AddForce(ray.direction * 150, ForceMode.Impulse);
                 ScreenShaker.Shake(0.4f, 0.2f);
+                firingLock = true;
+                Invoke("Unlock", 0.1f);
             }
         }
+    }
+
+    void Unlock()
+    {
+        firingLock = false;
     }
 
     void LiftMode()

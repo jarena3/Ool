@@ -7,6 +7,10 @@ using Debug = UnityEngine.Debug;
 
 public class GameManager : MonoBehaviour
 {
+    public bool PlaySound = true;
+    public bool PlayMusic = true;
+
+
     public int TotalChallengeLevelCount;
 
 
@@ -44,9 +48,39 @@ public class GameManager : MonoBehaviour
 
     private ScreenFader screenFader;
 
-    void Awake()
+    public bool bailing;
+    public AudioClip[] BallClip;
+    public AudioClip BadSinkClip;
+    public AudioClip GoodSinkClip;
+
+    private void Awake()
     {
-        DontDestroyOnLoad(this);
+            DontDestroyOnLoad(this);
+    }
+
+    void OnLevelWasLoaded()
+    {
+        if (FindObjectsOfType<GameManager>().Length > 1)
+        {
+            var badone = FindObjectsOfType<GameManager>().FirstOrDefault(s => s.bailing);
+            if (badone != null)
+            {
+                Destroy(badone.gameObject);
+            }
+            else
+            {
+                Destroy(FindObjectsOfType<GameManager>()[0].gameObject);
+            }
+        }
+
+        if (Application.loadedLevelName == "Game")
+        {
+            Time.timeScale = 2;
+        }
+        else
+        {
+            Time.timeScale = 1;
+        }
     }
 
     void Start()
@@ -162,6 +196,8 @@ public class GameManager : MonoBehaviour
 
     public void ActivateNextBall()
     {
+        if (bailing) return;
+
         activeBallNumber ++;
 
         var balls = FindObjectsOfType<Ball>().Where(s => s.IsBogus == false).ToList();

@@ -11,8 +11,12 @@ public class PopP : MonoBehaviour
 
     private bool brighten;
 
+    private AudioSource aSource;
+    public AudioClip BreakClip;
+
     void Start()
     {
+        aSource = GetComponent<AudioSource>();
         Invoke("StartPop", 3f);
         Invoke("EndPop", 5f);
     }
@@ -20,6 +24,8 @@ public class PopP : MonoBehaviour
     void StartPop()
     {
         brighten = true;
+        if(FindObjectOfType<GameManager>().PlaySound)
+        aSource.Play();
     }
 
     void Update()
@@ -32,6 +38,12 @@ public class PopP : MonoBehaviour
 
     void EndPop()
     {
+        aSource.Stop();
+        aSource.clip = BreakClip;
+        if (FindObjectOfType<GameManager>().PlaySound)
+        {
+            aSource.Play();
+        }
         brighten = false;
         PLight.gameObject.SetActive(false);
         PLight2.gameObject.SetActive(false);

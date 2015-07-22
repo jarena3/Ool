@@ -38,7 +38,7 @@ public class GameOverManager : MonoBehaviour
     private void CreateScorePanel(GameManager.LevelScore levelScore)
     {
         var spi = Instantiate(ScorePanelItemPrefab);
-        spi.GetComponentInChildren<Text>().text = string.Format("Level {0}{3}Score:{3}{1}{3}Faults:{3}{4}{3}Time:{3}{2}",
+        spi.GetComponentInChildren<Text>().text = string.Format("Level {0}{3}Score: {1}{3}Faults: {4}{3}{2}",
             levelScore.LevelNumber, levelScore.Score, levelScore.Time.Minutes+"m " + levelScore.Time.Seconds + "s " + levelScore.Time.Milliseconds + "ms", Environment.NewLine, levelScore.Faults);
         spi.transform.SetParent(ScoresPanel);
     }

@@ -27,8 +27,12 @@ public class GameworldUIManager : MonoBehaviour
     public GameObject NextButton;
     public GameObject DoneButton;
 
+    public AudioClip LevelEnd;
+    private AudioSource aSource;
+
     void Start()
     {
+        aSource = GetComponent<AudioSource>();
         Manager = FindObjectOfType<GameManager>();
         CameraBlur.enabled = false;
         ChangeGratsText();
@@ -55,6 +59,14 @@ public class GameworldUIManager : MonoBehaviour
         LevelOverTime.text = string.Format("{0}:{1}{2}", "Total Time", Environment.NewLine, tsString);
         LevelOverScore.text = string.Format("{0}:{1}{2}", "Total Score", Environment.NewLine, Manager.Score);
         LevelOverFaults.text = string.Format("{0}:{1}{2}", "Total Faults", Environment.NewLine, Manager.CurrentFaults);
+        PlaySound(LevelEnd);
+    }
+
+    public void PlaySound(AudioClip sound)
+    {
+        if (!Manager.PlaySound) return;
+        aSource.clip = sound;
+        aSource.Play();
     }
 
     public void ChangeGratsText()
@@ -94,8 +106,9 @@ public class GameworldUIManager : MonoBehaviour
     public void GameOver()
     {
         Time.timeScale = 1;
+        Manager.bailing = true;
         Manager.ResetGame();
-        Application.LoadLevel(0);
+        Application.LoadLevel(1);
     }
 
     public void SunkBall(string format)
@@ -115,4 +128,5 @@ public class GameworldUIManager : MonoBehaviour
         t.text = format;
         t.color = Color.red;
     }
+
 }
